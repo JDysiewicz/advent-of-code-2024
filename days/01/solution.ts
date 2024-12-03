@@ -1,4 +1,5 @@
 import { getLines } from "../../utils/getLines";
+import { solutionPrinter } from "../../utils/solutionPrinter";
 
 const sortAsc = (arr: number[]) => arr.sort((a, b) => a - b);
 
@@ -75,5 +76,5 @@ const part2 = () => {
   return score;
 };
 
-console.log(part1());
-console.log(part2());
+solutionPrinter(1, 1, part1());
+solutionPrinter(1, 2, part2());
