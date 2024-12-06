@@ -213,7 +213,7 @@ const dfs = (
 };
 
 const part2 = () => {
-  const lines = getLines("./days/04/test-input.txt");
+  const lines = getLines("./days/04/input.txt");
   const grid: string[][] = [];
 
   for (let line of lines) {
@@ -225,109 +225,40 @@ const part2 = () => {
 
   for (let vertCoord = 0; vertCoord < grid.length; vertCoord++) {
     for (let horCoord = 0; horCoord < grid[0].length; horCoord++) {
-      count += dfs2(grid, vertCoord, horCoord, "A", Direction.NONE);
+      if (isValidXMas(grid, vertCoord, horCoord)) {
+        count += 1;
+      }
     }
   }
 
   return count;
 };
 
-const isTerminalX = (target: string, dir: Direction, forwards: boolean) => {
-  if (target == "A") {
+const isValidXMas = (grid: string[][], y: number, x: number): boolean => {
+  if (grid[y][x] != "A") {
     return false;
   }
-  if (forwards) {
-    if (dir === Direction.TOP_LEFT || dir === Direction.BOTTOM_LEFT) {
-      return target === "M";
+  try {
+    if (
+      (grid[y - 1][x - 1] === "M" && grid[y + 1][x + 1] === "S") ||
+      (grid[y - 1][x - 1] === "S" && grid[y + 1][x + 1] === "M")
+    ) {
+      if (
+        (grid[y + 1][x - 1] === "M" && grid[y - 1][x + 1] === "S") ||
+        (grid[y + 1][x - 1] === "S" && grid[y - 1][x + 1] === "M")
+      ) {
+        return true;
+      }
     }
-
-    if (dir === Direction.TOP_RIGHT || dir === Direction.BOTTOM_RIGHT) {
-      return target === "S";
+  } catch (err) {
+    if (err instanceof TypeError) {
+      return false;
     }
+    throw err;
   }
 
-  if (dir === Direction.TOP_LEFT || dir === Direction.BOTTOM_LEFT) {
-    return target === "S";
-  }
-
-  if (dir === Direction.TOP_RIGHT || dir === Direction.BOTTOM_RIGHT) {
-    return target === "M";
-  }
-
-  throw new Error(`WEEWOO target is ${target} direction is ${dir}`);
+  return false;
 };
-
-const dfs2 = (
-  grid: string[][],
-  vertCoord: number,
-  horCoord: number,
-  target: string,
-  dir: Direction
-): number => {
-  const VERT_MAX_COORD = grid.length - 1;
-  const HOR_MAX_COORD = grid[0].length - 1;
-  let isValidX = false;
-
-  const isTarget = grid[vertCoord][horCoord] == target;
-  if (!isTarget) {
-    return 0;
-  }
-
-  if (isTarget && isTerminalX(target, dir)) {
-    return 1;
-  }
-
-  if (
-    target === "A" &&
-    (!topRightValid(vertCoord, horCoord, HOR_MAX_COORD) ||
-      !bottomRightValid(vertCoord, horCoord, HOR_MAX_COORD, VERT_MAX_COORD) ||
-      !bottomLeftValid(vertCoord, horCoord, HOR_MAX_COORD, VERT_MAX_COORD) ||
-      !topLeftValid(vertCoord, horCoord))
-  ) {
-    return 0;
-  }
-
-  
-
-
-
-//   if (
-//     topRightValid(vertCoord, horCoord, HOR_MAX_COORD) &&
-//     (dir === Direction.NONE || dir === Direction.TOP_RIGHT)
-//   ) {
-//     isValidX =
-//       dfs2(grid, vertCoord - 1, horCoord + 1, "S", Direction.TOP_RIGHT) === 1;
-//   }
-//   if (
-//     bottomRightValid(vertCoord, horCoord, HOR_MAX_COORD, VERT_MAX_COORD) &&
-//     (dir === Direction.NONE || dir === Direction.BOTTOM_RIGHT)
-//   ) {
-//     isValidX =
-//       dfs2(grid, vertCoord + 1, horCoord + 1, "S", Direction.BOTTOM_RIGHT) ===
-//       1;
-//   }
-//   if (
-//     bottomLeftValid(vertCoord, horCoord, HOR_MAX_COORD, VERT_MAX_COORD) &&
-//     (dir === Direction.NONE || dir === Direction.BOTTOM_LEFT)
-//   ) {
-//     isValidX =
-//       dfs2(grid, vertCoord + 1, horCoord - 1, "M", Direction.BOTTOM_LEFT) === 1;
-//   }
-//   if (
-//     topLeftValid(vertCoord, horCoord) &&
-//     (dir === Direction.NONE || dir === Direction.TOP_LEFT)
-//   ) {
-//     isValidX =
-//       dfs2(grid, vertCoord - 1, horCoord - 1, "M", Direction.TOP_LEFT) === 1;
-//   }
-
-  if (isValidX) {
-    console.log(vertCoord, horCoord);
-  }
-
-  return isValidX ? 1 : 0;
-};
-
 
 solutionPrinter(4, 1, part1());
 solutionPrinter(4, 2, part2());
