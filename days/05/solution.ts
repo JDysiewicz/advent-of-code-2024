@@ -91,7 +91,7 @@ const getIndexOfEveryOccurence = (arr: number[], target: number): number[] => {
 };
 
 const part2 = () => {
-  const lines = getLines("./days/05/test-input.txt");
+  const lines = getLines("./days/05/input.txt");
   const instructions = lines.filter((line: string) => line.includes("|"));
   const updates = lines.filter((line: string) => line.includes(","));
 
@@ -136,23 +136,38 @@ const sortUpdate = (
   arr: number[],
   instructionMap: Record<string, number[]>
 ): number[] => {
-  let sortedArr = [...arr];
-
-  for (let i = 0; i < arr.length; i++) {
-    const elem = arr[i];
-    if (!!instructionMap[elem.toString()]) {
-      continue;
+  const sortedArr = arr.sort((a, b) => {
+    if (
+      !!instructionMap[a.toString()] &&
+      instructionMap[a.toString()].includes(b)
+    ) {
+      return -1;
+    }
+    if (
+      !!instructionMap[b.toString()] &&
+      instructionMap[b.toString()].includes(a)
+    ) {
+      return 1;
     }
 
-    const miniMap = {};
-    miniMap[elem.toString()] = instructionMap[elem.toString()];
-    let isCorrectPosition = isCorrectUpdate(sortedArr, miniMap);
-    let currIdx = i;
-    while (!isCorrectPosition) {
-      arraymove(sortedArr, currIdx, currIdx + 1);
-      isCorrectPosition = isCorrectUpdate(sortedArr, miniMap);
-    }
-  }
+    return 0;
+  });
+
+  // for (let i = 0; i < arr.length; i++) {
+  //   const elem = arr[i];
+  //   if (!!instructionMap[elem.toString()]) {
+  //     continue;
+  //   }
+
+  //   const miniMap = {};
+  //   miniMap[elem.toString()] = instructionMap[elem.toString()];
+  //   let isCorrectPosition = isCorrectUpdate(sortedArr, miniMap);
+  //   let currIdx = i;
+  //   while (!isCorrectPosition) {
+  //     arraymove(sortedArr, currIdx, currIdx + 1);
+  //     isCorrectPosition = isCorrectUpdate(sortedArr, miniMap);
+  //   }
+  // }
 
   return sortedArr;
 };
