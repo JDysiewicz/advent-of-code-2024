@@ -153,22 +153,6 @@ const sortUpdate = (
     return 0;
   });
 
-  // for (let i = 0; i < arr.length; i++) {
-  //   const elem = arr[i];
-  //   if (!!instructionMap[elem.toString()]) {
-  //     continue;
-  //   }
-
-  //   const miniMap = {};
-  //   miniMap[elem.toString()] = instructionMap[elem.toString()];
-  //   let isCorrectPosition = isCorrectUpdate(sortedArr, miniMap);
-  //   let currIdx = i;
-  //   while (!isCorrectPosition) {
-  //     arraymove(sortedArr, currIdx, currIdx + 1);
-  //     isCorrectPosition = isCorrectUpdate(sortedArr, miniMap);
-  //   }
-  // }
-
   return sortedArr;
 };
 
