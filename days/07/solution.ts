@@ -5,33 +5,33 @@ import * as permutation from "array-permutation";
 // The only valid operators we have
 type Operator = "+" | "*" | "||";
 
-// Account for case where duplicate totals occur with separate inputs
-interface ResultMap {
-  [key: string]: number[][];
+interface InputMap {
+  [key: string]: number[];
 }
 
 const part1 = () => {
   const lines = getLines("./days/07/input.txt");
 
-  const resultMap = createResultInputMap(lines);
+  const inputMap = createInputMap(lines);
 
-  let sum = 0;
-  for (let [k, v] of Object.entries(resultMap)) {
-    const target = parseInt(k);
-    for (let input of v) {
-      // i=0 is short-circuited, so operator doesn't matter; could be "*" here too
-      const isSolveable = checkSolveable(0, "+", 0, input, target, false);
-      if (isSolveable) {
-        sum += target;
-      }
-    }
-  }
+  const sum = generateSumOfValidTotals(inputMap, false);
 
   return sum;
 };
 
-const createResultInputMap = (lines: string[]): ResultMap => {
-  const res: ResultMap = {};
+const part2 = () => {
+  const lines = getLines("./days/07/input.txt");
+
+  const inputMap = createInputMap(lines);
+
+  const sum = generateSumOfValidTotals(inputMap, true);
+
+  return sum;
+};
+
+// Duplicate totals ignored/overwritten as not part of problem
+const createInputMap = (lines: string[]): InputMap => {
+  const res: InputMap = {};
   for (let line of lines) {
     if (line.length === 0) {
       continue;
@@ -43,34 +43,25 @@ const createResultInputMap = (lines: string[]): ResultMap => {
       .split(" ")
       .map((s) => parseInt(s));
 
-    if (!!res[result]) {
-      res[result] = [...res[result], inputs];
-    } else {
-      res[result] = [inputs];
-    }
+    res[result] = inputs;
   }
   return res;
 };
 
-const part2 = () => {
-  const lines = getLines("./days/07/input.txt");
-
-  const resultMap = createResultInputMap(lines);
-
+const generateSumOfValidTotals = (inputMap: InputMap, isPart2: boolean) => {
   let sum = 0;
-  for (let [k, v] of Object.entries(resultMap)) {
+  for (let [k, v] of Object.entries(inputMap)) {
     const target = parseInt(k);
-    for (let input of v) {
-      const isSolveable = checkSolveable(0, "+", 0, input, target, true);
-      if (isSolveable) {
-        sum += target;
-      }
+    const isSolveable = checkSolveable(0, "+", 0, v, target, isPart2);
+    if (isSolveable) {
+      sum += target;
     }
   }
 
   return sum;
 };
 
+// || operator valid only if part2
 const checkSolveable = (
   total: number,
   op: Operator,
