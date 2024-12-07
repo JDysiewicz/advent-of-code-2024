@@ -1,6 +1,5 @@
 import { getLines } from "../../utils/getLines";
 import { solutionPrinter } from "../../utils/solutionPrinter";
-import * as permutation from "array-permutation";
 
 // The only valid operators we have
 type Operator = "+" | "*" | "||";
