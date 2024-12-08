@@ -177,6 +177,7 @@ const createAntennaMapPart2 = (
     let currX = targetX - xDelta;
     let currY = targetY - yDelta;
 
+    // Add antinodes at resonate frequencies in one direction until off the map
     while (currX <= maxX && currX >= 0 && currY <= maxY && currY >= 0) {
       antiNodeSet.add(`${currX},${currY}`);
       currX = currX - xDelta;
@@ -186,6 +187,7 @@ const createAntennaMapPart2 = (
     currX = x + xDelta;
     currY = y + yDelta;
 
+    // Add antinodes at resonate frequencies in the other direction
     while (currX <= maxX && currX >= 0 && currY <= maxY && currY >= 0) {
       antiNodeSet.add(`${currX},${currY}`);
       currX = currX + xDelta;
