@@ -5,27 +5,28 @@ const part1 = () => {
   const lines = getLines("./days/09/test-input.txt");
   const input = lines[0].split("");
 
-  const diskFormat = createSparseFormat(input);
+  const disk = createSparseFormat(input);
 
-  for (let i = 0; i < diskFormat.length; i++) {
-    if (diskFormat[i] != ".") {
+  for (let i = 0; i < disk.length; i++) {
+    // ignore anything which is not empty space
+    if (disk[i] != ".") {
       continue;
     }
 
-    // if not, iterate from back of array towards begining
-    for (let j = diskFormat.length - 1; j >= i; j--) {
-      if (diskFormat[j] === ".") {
+    // if empty space, move blocks from end to fill it
+    for (let j = disk.length - 1; j >= i; j--) {
+      if (disk[j] === ".") {
         continue;
       } else {
-        const n = diskFormat[j];
-        diskFormat[j] = ".";
-        diskFormat[i] = n;
+        const n = disk[j];
+        disk[j] = ".";
+        disk[i] = n;
         break;
       }
     }
   }
 
-  const checkSum = diskFormat.reduce((acc, curr, i) => {
+  const checkSum = disk.reduce((acc, curr, i) => {
     if (curr === ".") {
       return acc;
     }
@@ -62,71 +63,57 @@ const createSparseFormat = (input: string[]): string[] => {
 };
 
 const part2 = () => {
-  const lines = getLines("./days/09/input.txt");
+  const lines = getLines("./days/09/test-input.txt");
   const input = lines[0].split("");
 
-  const diskFormat = createSparseFormat(input);
+  const disk = createSparseFormat(input);
 
-  for (let j = diskFormat.length - 1; j >= 0; j--) {
-    if (diskFormat[j] === ".") {
+  // Iterate back to front, moving blocks as they are possible
+  // (attempt to move each block only once)
+  for (let j = disk.length - 1; j >= 0; j--) {
+    // Ignore empty spaces
+    if (disk[j] === ".") {
       continue;
     }
 
-    const n = diskFormat[j];
+    const n = disk[j];
     const blockSize = calculateBlockSize(
       n,
-      diskFormat.slice(j - 10 > 0 ? j - 10 : 0, j + 1),
+      disk.slice(j - 10 > 0 ? j - 10 : 0, j + 1), // safeguard against index out of bound
       "dec"
     );
 
+    // Check for any empty space before this point in the array
+    // which could fit this block
     for (let i = 0; i < j; i++) {
-      if (diskFormat[i] != ".") {
+      // ignore anything which isn't empty space
+      if (disk[i] != ".") {
         continue;
       }
 
-      const emptySize = calculateBlockSize(
-        ".",
-        diskFormat.slice(i, i + 10),
-        "inc"
-      );
+      const emptySize = calculateBlockSize(".", disk.slice(i, i + 10), "inc");
 
+      // If empty space big enough, iteratively move the block into it
+      // then break as this block has been moved
       if (emptySize >= blockSize) {
         for (let k = j; k > j - blockSize; k--) {
-          diskFormat[k] = ".";
+          disk[k] = ".";
         }
         for (let k = i; k < i + blockSize; k++) {
-          diskFormat[k] = n;
+          disk[k] = n;
         }
         break;
       }
 
-      // -1 as inc by +1 each iteration
+      // -1 as inc by +1 each iteration and emptySize always > 0
       i = i + emptySize - 1;
     }
 
-    // +1 as dec by 1 each loop iteration
+    // +1 as dec by 1 each iteration and blockSize always > 0
     j = j - blockSize + 1;
   }
 
-  //   for (let i = 0; i < diskFormat.length; i++) {
-  //     if (diskFormat[i] != ".") {
-  //       continue;
-  //     }
-
-  //     // if not, iterate from back of array towards begining
-  //     for (let j = diskFormat.length - 1; j >= i; j--) {
-  //       if (diskFormat[j] === ".") {
-  //         continue;
-  //       } else {
-  //         const n = diskFormat[j];
-  //         diskFormat[j] = ".";
-  //         diskFormat[i] = n;
-  //         break;
-  //       }
-  //     }
-  //   }
-
-  const checkSum = diskFormat.reduce((acc, curr, i) => {
+  const checkSum = disk.reduce((acc, curr, i) => {
     if (curr === ".") {
       return acc;
     }
@@ -140,14 +127,16 @@ const part2 = () => {
 
 const calculateBlockSize = (
   target: string,
-  arrSlice: string[],
+  arr: string[],
   dir: "inc" | "dec"
 ) => {
   let count = 0;
+
+  // only count contiguous blocks; break once block ends
   let started = false;
   if (dir === "inc") {
-    for (let i = 0; i < arrSlice.length; i++) {
-      if (arrSlice[i] === target) {
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i] === target) {
         count++;
         started = true;
       } else if (started) {
@@ -155,8 +144,8 @@ const calculateBlockSize = (
       }
     }
   } else {
-    for (let i = arrSlice.length - 1; i >= 0; i--) {
-      if (arrSlice[i] === target) {
+    for (let i = arr.length - 1; i >= 0; i--) {
+      if (arr[i] === target) {
         count++;
         started = true;
       } else if (started) {
