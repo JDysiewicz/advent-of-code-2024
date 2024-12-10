@@ -90,7 +90,73 @@ const targetMap = {
   8: 9,
 };
 
-const part2 = () => {};
+const part2 = () => {
+  const lines = getLines("./days/10/input.txt");
+  const grid: number[][] = [];
+
+  for (let line of lines) {
+    grid.push(line.split("").map((x) => parseInt(x)));
+  }
+
+  let score = 0;
+
+  for (let y = 0; y < grid.length; y++) {
+    for (let x = 0; x < grid[0].length; x++) {
+      if (grid[y][x] === 0) {
+        score += dfs2(x, y, 0, grid);
+      }
+    }
+  }
+
+  return score;
+};
+
+const dfs2 = (
+  x: number,
+  y: number,
+  target: number,
+  grid: number[][]
+): number => {
+  const isTarget = grid[y][x] === target;
+
+  if (!isTarget) {
+    return 0;
+  }
+
+  if (target === 9 && isTarget) {
+    return 1;
+  }
+
+  const newTarget = targetMap[target];
+
+  let score = 0;
+
+  // up
+  if (isUpValid(y)) {
+    const newY = y - 1;
+    score += dfs2(x, newY, newTarget, grid);
+  }
+
+  // right
+  if (isRightValid(x, grid[0].length - 1)) {
+    const newX = x + 1;
+    score += dfs2(newX, y, newTarget, grid);
+  }
+
+  // down
+  if (isDownValid(y, grid.length - 1)) {
+    const newY = y + 1;
+    score += dfs2(x, newY, newTarget, grid);
+  }
+
+  // left
+  if (isLeftValid(x)) {
+    const newX = x - 1;
+    score += dfs2(newX, y, newTarget, grid);
+  }
+
+  return score;
+};
 
 solutionPrinter(10, 1, part1());
 solutionPrinter(10, 2, part2());
