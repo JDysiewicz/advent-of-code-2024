@@ -85,28 +85,72 @@ const createInitialLinkedList = (arr: number[]): Node => {
   return root;
 };
 
+// Part 2 uses different approach as LinkedList is not scalable.
+// This uses just a simple map of keys to their counts, as the order doesn't
+// actually matter for this problem.
 const part2 = () => {
-  const NUM_BLINKS = 25;
+  const NUM_BLINKS = 75;
   const lines = getLines("./days/11/input.txt");
   const input: number[] = lines[0].split(" ").map((x) => parseInt(x));
-  const cache: { [key: number]: number[] } = {};
 
+  // Initial population of cache containing keys (numbers in list)
+  // and their counts + result of operating on the key (for optimisation purposes)
+  let cache: { [num: string]: { count: number; opRes?: number[] } } = {};
   for (let elem of input) {
-    cache[elem] = operate(elem);
+    cache[elem] = {
+      count: 1,
+      opRes: operate(elem),
+    };
   }
 
-  let count = 0;
-  for (let elem of input) {
-    for (let i = 0; i < NUM_BLINKS; i++) {
-      count += operate(elem).length;
+  for (let i = 0; i < NUM_BLINKS; i++) {
+    // Operate on copy so we only deal with each node in the
+    // iteration exactly once.
+    let cacheCopy = structuredClone(cache);
+    for (const k in cache) {
+      // If we already have the results of operation cached, use it else calculate it
+      // and add operation results to cache
+      let res = cacheCopy[k].opRes;
+      if (!!res) {
+        res = operate(parseInt(k));
+        cacheCopy[k].opRes = res;
+      }
+
+      // We know operating on k gives [a, Maybe<b>], so can
+      // just add cache[k] number of a (and b, if exists)
+      for (let elem of res) {
+        if (elem in cacheCopy) {
+          cacheCopy[elem].count += cache[k].count;
+        } else {
+          cacheCopy[elem] = {
+            count: cache[k].count,
+            opRes: operate(res[0]),
+          };
+        }
+      }
+
+      // We will have operated on k cache[k] number of times so subtract this
+      // Don't use cacheCopy[k] count as otherwise we prematurely delete keys which were
+      // created from operating on a different number
+      cacheCopy[k].count -= cache[k].count;
+      if (cacheCopy[k].count <= 0) {
+        delete cacheCopy[k];
+      }
     }
+
+    cache = cacheCopy;
+  }
+
+  // Calculate sum of all keys
+  let count = 0;
+  for (let k of Object.keys(cache)) {
+    count += cache[k].count;
   }
 
   return count;
 };
 
 const operate = (n: number): number[] => {
-  console.log(`Operating on ${n}`);
   if (isZero(n)) {
     return [1];
   } else if (isEvenDigits(n)) {
