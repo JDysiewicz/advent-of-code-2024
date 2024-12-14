@@ -13,23 +13,26 @@ const part1 = () => {
   let q3Count = 0;
   let q4Count = 0;
 
+  // Can calculate each robot's position independantly of each other
   for (let robot of lines) {
     const [startX, startY] = getStartingCoords(robot);
     const [velX, velY] = getVelcoity(robot);
 
-    let xTotal = startX + velX * NUM_ITERATIONS;
-    while (xTotal < 0) {
-      xTotal += X_WIDTH;
-    }
-    const xPos = xTotal % X_WIDTH;
-
-    let yTotal = startY + velY * NUM_ITERATIONS;
-    while (yTotal < 0) {
-      yTotal += Y_LENGTH;
-    }
-    const yPos = yTotal % Y_LENGTH;
+    const xPos = determineLocationAfterNIterations(
+      startX,
+      velX,
+      NUM_ITERATIONS,
+      X_WIDTH
+    );
+    const yPos = determineLocationAfterNIterations(
+      startY,
+      velY,
+      NUM_ITERATIONS,
+      Y_LENGTH
+    );
 
     const quadrant = determineQuadrant(xPos, yPos, X_WIDTH, Y_LENGTH);
+
     switch (quadrant) {
       case 0:
         continue;
@@ -52,6 +55,24 @@ const part1 = () => {
 };
 const part2 = () => {};
 
+// Get the position after N iterations, then
+// normalise it back to in-bounds so can modulo to get
+// position on grid
+const determineLocationAfterNIterations = (
+  n: number,
+  velocity: number,
+  iterations: number,
+  size: number
+) => {
+  let total = n + velocity * iterations;
+  while (total < 0) {
+    total += size;
+  }
+
+  const position = total % size;
+  return position;
+};
+
 // return [x,y]
 const getStartingCoords = (robot: string): [number, number] => {
   const match = robot.match(/p=.*,.* /);
@@ -60,7 +81,7 @@ const getStartingCoords = (robot: string): [number, number] => {
   return [parseInt(split[0].split("=")[1]), parseInt(split[1])];
 };
 
-// return [x,y]
+// return velocity as [Vx,Vy]
 const getVelcoity = (robot: string): [number, number] => {
   const match = robot.match(/v=.*,.*$/);
   const split = match[0].trim().split(",");
@@ -68,6 +89,7 @@ const getVelcoity = (robot: string): [number, number] => {
   return [parseInt(split[0].split("=")[1]), parseInt(split[1])];
 };
 
+// 0 = on the midline
 const determineQuadrant = (
   x: number,
   y: number,
