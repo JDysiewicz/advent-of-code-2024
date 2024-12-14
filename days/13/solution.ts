@@ -30,65 +30,85 @@ const part1 = () => {
 
   let tokens = 0;
   for (let game of games) {
-    let lowestCompletion: number | null = null;
-
-    let fns: FnExecute[] = [
-      { currX: 0, currY: 0, currTokens: 0, game: game, opt: "A" },
-      { currX: 0, currY: 0, currTokens: 0, game: game, opt: "B" },
-    ];
-
-    while (fns.length > 0) {
-      const fn = fns.shift();
-      console.log(fns.length);
-      let x: number;
-      let y: number;
-      let toks: number;
-
-      if (fn.opt === "A") {
-        x = fn.currX + game.A.x;
-        y = fn.currY + game.A.y;
-        toks = fn.currTokens + A_TOKEN_COST;
-      } else {
-        x = fn.currX + game.B.x;
-        y = fn.currY + game.B.y;
-        toks = fn.currTokens + B_TOKEN_COST;
-      }
-
-      // Reached the target; overwrite lowest if lower token count
-      if (x === fn.game.prize.x && y === fn.game.prize.y) {
-        if (lowestCompletion === null || toks < lowestCompletion) {
-          lowestCompletion = toks;
-        }
-        continue;
-      }
-
-      // Gone over; remove from list and go to next iteration
-      if (x > fn.game.prize.x || y > fn.game.prize.y) {
-        continue;
-      }
-
-      // Push 2 new fns; one for going to A branch and one for B branch
-      fns.push({
-        currTokens: toks,
-        currX: x,
-        currY: y,
-        game: game,
-        opt: "A",
-      });
-      fns.push({
-        currTokens: toks,
-        currX: x,
-        currY: y,
-        game: game,
-        opt: "B",
-      });
-    }
-
-    tokens += lowestCompletion;
+    tokens += lowestToken(game);
   }
-
-  return tokens;
 };
+
+const lowestTokenCount = (game: Game) => {
+  
+};
+
+// const part1 = () => {
+//   const lines = getLines("./days/13/test-input.txt");
+
+//   const games = buildGamesList(lines);
+
+//   let tokens = 0;
+//   for (let game of games) {
+//     let lowestCompletion: number | null = null;
+
+//     let fns: FnExecute[] = [
+//       { currX: 0, currY: 0, currTokens: 0, game: game, opt: "A" },
+//       { currX: 0, currY: 0, currTokens: 0, game: game, opt: "B" },
+//     ];
+
+//     while (fns.length > 0) {
+//       const fn = fns.shift();
+
+//       // early exit if we already know this path will result in a higher total count
+//       if (lowestCompletion !== null && fn.currTokens > lowestCompletion) {
+//         continue;
+//       }
+//       console.log(fns.length);
+//       let x: number;
+//       let y: number;
+//       let toks: number;
+
+//       if (fn.opt === "A") {
+//         x = fn.currX + game.A.x;
+//         y = fn.currY + game.A.y;
+//         toks = fn.currTokens + A_TOKEN_COST;
+//       } else {
+//         x = fn.currX + game.B.x;
+//         y = fn.currY + game.B.y;
+//         toks = fn.currTokens + B_TOKEN_COST;
+//       }
+
+//       // Reached the target; overwrite lowest if lower token count
+//       if (x === fn.game.prize.x && y === fn.game.prize.y) {
+//         if (lowestCompletion === null || toks < lowestCompletion) {
+//           lowestCompletion = toks;
+//         }
+//         continue;
+//       }
+
+//       // Gone over; remove from list and go to next iteration
+//       if (x > fn.game.prize.x || y > fn.game.prize.y) {
+//         continue;
+//       }
+
+//       // Push 2 new fns; one for going to A branch and one for B branch
+//       fns.push({
+//         currTokens: toks,
+//         currX: x,
+//         currY: y,
+//         game: game,
+//         opt: "A",
+//       });
+//       fns.push({
+//         currTokens: toks,
+//         currX: x,
+//         currY: y,
+//         game: game,
+//         opt: "B",
+//       });
+//     }
+
+//     tokens += lowestCompletion;
+//   }
+
+//   return tokens;
+// };
 
 const buildGamesList = (lines: string[]): Game[] => {
   const games: Game[] = [];
